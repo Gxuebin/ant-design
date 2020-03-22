@@ -1,8 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import Alert from '..';
+import rtlTest from '../../../tests/shared/rtlTest';
+
+const { ErrorBoundary } = Alert;
 
 describe('Alert', () => {
+  rtlTest(Alert);
+
   beforeAll(() => {
     jest.useFakeTimers();
   });
@@ -24,9 +29,9 @@ describe('Alert', () => {
       />,
     );
     wrapper.find('.ant-alert-close-icon').simulate('click');
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
     jest.runAllTimers();
-    expect(afterClose).toBeCalled();
+    expect(afterClose).toHaveBeenCalled();
   });
 
   describe('data and aria props', () => {
@@ -48,5 +53,17 @@ describe('Alert', () => {
       const input = wrapper.find('.ant-alert').getDOMNode();
       expect(input.getAttribute('role')).toBe('status');
     });
+  });
+
+  const testIt = process.env.REACT === '15' ? it.skip : it;
+  testIt('ErrorBoundary', () => {
+    const ThrowError = () => <NotExisted />; // eslint-disable-line
+    const wrapper = mount(
+      <ErrorBoundary>
+        <ThrowError />
+      </ErrorBoundary>,
+    );
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(wrapper.render()).toMatchSnapshot();
   });
 });

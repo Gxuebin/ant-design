@@ -11,7 +11,11 @@ module.exports = {
   ],
   modulePattern: [
     {
-      pattern: /ConfigConsumer.*renderEmpty/sm,
+      pattern: /ConfigConsumer.*renderEmpty/ms,
+      module: '../empty',
+    },
+    {
+      pattern: /config-provider\/context.*renderEmpty/ms,
       module: '../empty',
     },
   ],

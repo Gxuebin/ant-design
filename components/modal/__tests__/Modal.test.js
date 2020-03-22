@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import Modal from '..';
+import mountTest from '../../../tests/shared/mountTest';
+import rtlTest from '../../../tests/shared/rtlTest';
 
 jest.mock('rc-util/lib/Portal');
 
@@ -34,6 +36,9 @@ class ModalTester extends React.Component {
 }
 
 describe('Modal', () => {
+  mountTest(Modal);
+  rtlTest(Modal);
+
   it('render correctly', () => {
     const wrapper = mount(<ModalTester />);
     expect(wrapper.render()).toMatchSnapshot();
@@ -48,13 +53,18 @@ describe('Modal', () => {
     const onCancel = jest.fn();
     const wrapper = mount(<Modal onCancel={onCancel} />).instance();
     wrapper.handleCancel();
-    expect(onCancel).toBeCalled();
+    expect(onCancel).toHaveBeenCalled();
   });
 
   it('onOk should be called', () => {
     const onOk = jest.fn();
     const wrapper = mount(<Modal onOk={onOk} />).instance();
     wrapper.handleOk();
-    expect(onOk).toBeCalled();
+    expect(onOk).toHaveBeenCalled();
+  });
+
+  it('support closeIcon', () => {
+    const wrapper = mount(<Modal closeIcon={<a>closeIcon</a>} visible />);
+    expect(wrapper.render()).toMatchSnapshot();
   });
 });

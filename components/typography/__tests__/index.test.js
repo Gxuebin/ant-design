@@ -5,10 +5,22 @@ import copy from 'copy-to-clipboard';
 import Title from '../Title';
 import Paragraph from '../Paragraph';
 import Base from '../Base'; // eslint-disable-line import/no-named-as-default
+import mountTest from '../../../tests/shared/mountTest';
+import rtlTest from '../../../tests/shared/rtlTest';
+import Typography from '../Typography';
+import { sleep } from '../../../tests/utils';
 
 jest.mock('copy-to-clipboard');
 
 describe('Typography', () => {
+  mountTest(Paragraph);
+  mountTest(Base);
+  mountTest(Title);
+
+  rtlTest(Paragraph);
+  rtlTest(Base);
+  rtlTest(Title);
+
   const LINE_STR_COUNT = 20;
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -32,16 +44,11 @@ describe('Typography', () => {
     return style;
   };
 
-  beforeAll(() => {
-    jest.useFakeTimers();
-  });
-
   afterEach(() => {
     errorSpy.mockReset();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
     errorSpy.mockRestore();
     Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
       get: originOffsetHeight,
@@ -53,7 +60,7 @@ describe('Typography', () => {
     it('warning if `level` not correct', () => {
       mount(<Title level={false} />);
 
-      expect(errorSpy).toBeCalledWith(
+      expect(errorSpy).toHaveBeenCalledWith(
         'Warning: Title only accept `1 | 2 | 3 | 4` as `level` value.',
       );
     });
@@ -64,47 +71,91 @@ describe('Typography', () => {
       const fullStr =
         'Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light';
 
-      it('should trigger update', () => {
+      it('should trigger update', async () => {
         const wrapper = mount(
           <Base ellipsis component="p" editable>
             {fullStr}
           </Base>,
         );
 
-        jest.runAllTimers();
+        await sleep(20);
         wrapper.update();
-        expect(wrapper.find('span').text()).toEqual('Bamboo is Little ...');
+        expect(wrapper.find('span:not(.anticon)').text()).toEqual('Bamboo is Little ...');
 
         wrapper.setProps({ ellipsis: { rows: 2 } });
-        jest.runAllTimers();
+        await sleep(20);
         wrapper.update();
-        expect(wrapper.find('span').text()).toEqual('Bamboo is Little Light Bamboo is Litt...');
+        expect(wrapper.find('span:not(.anticon)').text()).toEqual(
+          'Bamboo is Little Light Bamboo is Litt...',
+        );
 
         wrapper.setProps({ ellipsis: { rows: 99 } });
-        jest.runAllTimers();
+        await sleep(20);
         wrapper.update();
         expect(wrapper.find('p').text()).toEqual(fullStr);
 
         wrapper.unmount();
       });
 
-      it('connect children', () => {
+      it('should middle ellipsis', async () => {
+        const suffix = '--suffix';
+        const wrapper = mount(
+          <Base ellipsis={{ rows: 1, suffix }} component="p">
+            {fullStr}
+          </Base>,
+        );
+
+        await sleep(20);
+        wrapper.update();
+        expect(wrapper.find('p').text()).toEqual('Bamboo is...--suffix');
+        wrapper.unmount();
+      });
+
+      it('should front or middle ellipsis', async () => {
+        const suffix = '--The information is very important';
+        const wrapper = mount(
+          <Base ellipsis={{ rows: 1, suffix }} component="p">
+            {fullStr}
+          </Base>,
+        );
+
+        await sleep(20);
+        wrapper.update();
+        expect(wrapper.find('p').text()).toEqual('...--The information is very important');
+
+        wrapper.setProps({ ellipsis: { rows: 2, suffix } });
+        await sleep(20);
+        wrapper.update();
+        expect(wrapper.find('p').text()).toEqual('Ba...--The information is very important');
+
+        wrapper.setProps({ ellipsis: { rows: 99, suffix } });
+        await sleep(20);
+        wrapper.update();
+        expect(wrapper.find('p').text()).toEqual(fullStr + suffix);
+
+        wrapper.unmount();
+      });
+
+      it('connect children', async () => {
+        const bamboo = 'Bamboo';
+        const is = ' is ';
+
         const wrapper = mount(
           <Base ellipsis component="p" editable>
-            {'Bamboo'}
-            {' is '}
+            {bamboo}
+            {is}
             <code>Little</code>
             <code>Light</code>
           </Base>,
         );
 
-        jest.runAllTimers();
+        await sleep(20);
         wrapper.update();
 
-        expect(wrapper.find('span').text()).toEqual('Bamboo is Little...');
+        expect(wrapper.find('span:not(.anticon)').text()).toEqual('Bamboo is Little...');
       });
 
-      it('should expandable work', () => {
+      it('should expandable work', async () => {
         const onExpand = jest.fn();
         const wrapper = mount(
           <Base ellipsis={{ expandable: true, onExpand }} component="p" copyable editable>
@@ -112,12 +163,12 @@ describe('Typography', () => {
           </Base>,
         );
 
-        jest.runAllTimers();
+        await sleep(20);
         wrapper.update();
 
         wrapper.find('.ant-typography-expand').simulate('click');
-        expect(onExpand).toBeCalled();
-        jest.runAllTimers();
+        expect(onExpand).toHaveBeenCalled();
+        await sleep(20);
         wrapper.update();
 
         expect(wrapper.find('p').text()).toEqual(fullStr);
@@ -132,6 +183,7 @@ describe('Typography', () => {
     describe('copyable', () => {
       function copyTest(name, text, target) {
         it(name, () => {
+          jest.useFakeTimers();
           const onCopy = jest.fn();
           const wrapper = mount(
             <Base component="p" copyable={{ text, onCopy }}>
@@ -146,7 +198,7 @@ describe('Typography', () => {
           expect(copy.lastStr).toEqual(target);
 
           wrapper.update();
-          expect(onCopy).toBeCalled();
+          expect(onCopy).toHaveBeenCalled();
 
           expect(wrapper.find('.anticon-check').length).toBeTruthy();
 
@@ -155,6 +207,7 @@ describe('Typography', () => {
 
           // Will set back when 3 seconds pass
           expect(wrapper.find('.anticon-check').length).toBeFalsy();
+          jest.useRealTimers();
         });
       }
 
@@ -168,14 +221,26 @@ describe('Typography', () => {
           const onStart = jest.fn();
           const onChange = jest.fn();
 
-          const wrapper = mount(<Paragraph editable={{ onChange, onStart }}>Bamboo</Paragraph>);
+          const className = 'test';
+          const style = {};
+
+          const wrapper = mount(
+            <Paragraph editable={{ onChange, onStart }} className={className} style={style}>
+              Bamboo
+            </Paragraph>,
+          );
 
           wrapper
             .find('.ant-typography-edit')
             .first()
             .simulate('click');
 
-          expect(onStart).toBeCalled();
+          expect(onStart).toHaveBeenCalled();
+
+          // Should have className
+          const props = wrapper.find('div').props();
+          expect(props.style).toEqual(style);
+          expect(props.className.includes(className)).toBeTruthy();
 
           wrapper.find('TextArea').simulate('change', {
             target: { value: 'Bamboo' },
@@ -186,7 +251,7 @@ describe('Typography', () => {
           if (expectFunc) {
             expectFunc(onChange);
           } else {
-            expect(onChange).toBeCalledWith('Bamboo');
+            expect(onChange).toHaveBeenCalledWith('Bamboo');
             expect(onChange).toHaveBeenCalledTimes(1);
           }
         });
@@ -211,7 +276,8 @@ describe('Typography', () => {
           wrapper.find('TextArea').simulate('keyUp', { keyCode: KeyCode.ESC });
         },
         onChange => {
-          expect(onChange).not.toBeCalled();
+          // eslint-disable-next-line
+          expect(onChange).not.toHaveBeenCalled();
         },
       );
 
@@ -219,5 +285,25 @@ describe('Typography', () => {
         wrapper.find('TextArea').simulate('blur');
       });
     });
+
+    it('should focus at the end of textarea', () => {
+      const wrapper = mount(<Paragraph editable>content</Paragraph>);
+      wrapper
+        .find('.ant-typography-edit')
+        .first()
+        .simulate('click');
+      const textareaNode = wrapper.find('textarea').getDOMNode();
+      expect(textareaNode.selectionStart).toBe(7);
+      expect(textareaNode.selectionEnd).toBe(7);
+    });
+  });
+
+  it('warning if use setContentRef', () => {
+    function refFunc() {}
+    mount(<Typography setContentRef={refFunc} />);
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Warning: [antd: Typography] `setContentRef` is deprecated. Please use `ref` instead.',
+    );
   });
 });

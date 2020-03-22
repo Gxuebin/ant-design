@@ -1,5 +1,6 @@
 ---
-category: Principles
+category: Design Patterns
+type: Principles
 order: 6
 title: Stay on the Page
 ---
@@ -28,7 +29,6 @@ Double-confirm overlay: Using the Modal to double confirm should be avoided, whi
 <img class="preview-img" align="right" alt="example of Detail Overlay " description="Click the eye icon to see more information." src="https://gw.alipayobjects.com/zos/rmsportal/yagQVxwdzuXOulzqdxEq.png">
 
 Detail Overlay: Allows an overlay to present additional information when the user clicks or hovers over a link or section of content.
-
 
 > Note that when a mouseover event occurs to trigger the Detail Overlay, 0.5-second delay needs to be added, and when the mouse is out, the overlay needs to be closed immediately.
 
@@ -66,7 +66,7 @@ In the process of interaction design, Overlays allow you to bring additional int
 
 ---
 
-##  Process Flows
+## Process Flows
 
 It has long been common practice on the Web to turn each step into a separate page. While this may be the simplest way break down the problem, it may not lead to the best solution. For some Process Flows it makes sense to keep the user on the same page throughout the process.
 
@@ -87,4 +87,3 @@ Configurator Process: Provides a configurator that allows users to help them acc
 <img class="preview-img" align="right" alt="example of Dialog Overlay Process" src="https://gw.alipayobjects.com/zos/rmsportal/YutBaHmScUzpbKdFWDcg.png">
 
 Dialog Overlay Process: Any page switch is an interruption to the user's mental flow. In addition, any context switch is a chance for a user to leave the site. But sometimes the step-by-step flow is necessary.
-

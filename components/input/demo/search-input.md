@@ -7,16 +7,16 @@ title:
 
 ## zh-CN
 
-带有搜索按钮的输入框，`2.5.0` 时新增。
+带有搜索按钮的输入框。
 
 ## en-US
 
-Example of creating a search box by grouping a standard input with a search button, added in `2.5.0`.
+Example of creating a search box by grouping a standard input with a search button.
 
-````jsx
+```jsx
 import { Input } from 'antd';
 
-const Search = Input.Search;
+const { Search } = Input;
 
 ReactDOM.render(
   <div>
@@ -25,13 +25,11 @@ ReactDOM.render(
       onSearch={value => console.log(value)}
       style={{ width: 200 }}
     />
-    <br /><br />
-    <Search
-      placeholder="input search text"
-      onSearch={value => console.log(value)}
-      enterButton
-    />
-    <br /><br />
+    <br />
+    <br />
+    <Search placeholder="input search text" onSearch={value => console.log(value)} enterButton />
+    <br />
+    <br />
     <Search
       placeholder="input search text"
       enterButton="Search"
@@ -39,6 +37,6 @@ ReactDOM.render(
       onSearch={value => console.log(value)}
     />
   </div>,
-  mountNode
+  mountNode,
 );
-````
+```

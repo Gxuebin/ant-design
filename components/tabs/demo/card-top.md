@@ -13,10 +13,10 @@ title:
 
 Should be used at the top of container, needs to override styles.
 
-````jsx
+```jsx
 import { Tabs } from 'antd';
 
-const TabPane = Tabs.TabPane;
+const { TabPane } = Tabs;
 
 ReactDOM.render(
   <div className="card-container">
@@ -38,11 +38,11 @@ ReactDOM.render(
       </TabPane>
     </Tabs>
   </div>,
-  mountNode
+  mountNode,
 );
-````
+```
 
-````css
+```css
 .card-container > .ant-tabs-card > .ant-tabs-content {
   height: 120px;
   margin-top: -16px;
@@ -66,12 +66,29 @@ ReactDOM.render(
   border-color: #fff;
   background: #fff;
 }
-````
+```
 
 <style>
 #components-tabs-demo-card-top .code-box-demo {
   background: #F5F5F5;
   overflow: hidden;
   padding: 24px;
+}
+[data-theme="dark"] .card-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+  border-color: transparent;
+  background: transparent;
+}
+[data-theme="dark"] #components-tabs-demo-card-top .code-box-demo {
+  background: #000;
+}
+[data-theme="dark"] .card-container > .ant-tabs-card > .ant-tabs-content > .ant-tabs-tabpane {
+  background: #141414;
+}
+[data-theme="dark"] .card-container > .ant-tabs-card > .ant-tabs-bar {
+  border-color: #141414;
+}
+[data-theme="dark"] .card-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+  border-color: #141414;
+  background: #141414;
 }
 </style>

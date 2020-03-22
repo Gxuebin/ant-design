@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { ListGridType, ColumnType } from './index';
 import { Col } from '../grid';
 import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
+import { cloneElement } from '../_util/reactNode';
 
 export interface ListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -71,7 +72,7 @@ export default class Item extends React.Component<ListItemProps, any> {
 
   context: any;
 
-  isItemContainsTextNode() {
+  isItemContainsTextNodeAndNotSingular() {
     const { children } = this.props;
     let result;
     React.Children.forEach(children, (element: React.ReactElement<any>) => {
@@ -79,7 +80,7 @@ export default class Item extends React.Component<ListItemProps, any> {
         result = true;
       }
     });
-    return result;
+    return result && React.Children.count(children) > 1;
   }
 
   isFlexMode() {
@@ -88,7 +89,7 @@ export default class Item extends React.Component<ListItemProps, any> {
     if (itemLayout === 'vertical') {
       return !!extra;
     }
-    return !this.isItemContainsTextNode();
+    return !this.isItemContainsTextNodeAndNotSingular();
   }
 
   renderItem = ({ getPrefixCls }: ConfigConsumerProps) => {
@@ -105,6 +106,7 @@ export default class Item extends React.Component<ListItemProps, any> {
     const actionsContent = actions && actions.length > 0 && (
       <ul className={`${prefixCls}-item-action`} key="actions">
         {actions.map((action: React.ReactNode, i: number) => (
+          // eslint-disable-next-line react/no-array-index-key
           <li key={`${prefixCls}-item-action-${i}`}>
             {action}
             {i !== actions.length - 1 && <em className={`${prefixCls}-item-action-split`} />}
@@ -112,9 +114,10 @@ export default class Item extends React.Component<ListItemProps, any> {
         ))}
       </ul>
     );
+    const Tag = grid ? 'div' : 'li';
     const itemChildren = (
-      <div
-        {...others}
+      <Tag
+        {...(others as any)} // `li` element `onCopy` prop args is not same as `div`
         className={classNames(`${prefixCls}-item`, className, {
           [`${prefixCls}-item-no-flex`]: !this.isFlexMode(),
         })}
@@ -129,12 +132,8 @@ export default class Item extends React.Component<ListItemProps, any> {
                 {extra}
               </div>,
             ]
-          : [
-              children,
-              actionsContent,
-              extra ? React.cloneElement(extra as React.ReactElement<any>, { key: 'extra' }) : null,
-            ]}
-      </div>
+          : [children, actionsContent, cloneElement(extra, { key: 'extra' })]}
+      </Tag>
     );
 
     return grid ? (
